@@ -4,6 +4,7 @@ import io.netty.buffer.ByteBuf;
 import io.netty.channel.ChannelHandlerContext;
 import io.netty.channel.ChannelInboundHandlerAdapter;
 import io.netty.channel.ChannelPipeline;
+import io.netty.handler.codec.LengthFieldBasedFrameDecoder;
 import my.ordiy.git.protocol.http.HttpDecoder;
 import my.ordiy.git.protocol.http.HttpEncoder;
 import my.ordiy.git.protocol.http.NettyHTTPServerHandler;
@@ -12,6 +13,7 @@ import my.ordiy.git.protocol.tcp.iot.IotCarProtocolEncoder;
 import my.ordiy.git.protocol.tcp.iot.IotCarPtInboundDataHandler;
 import my.ordiy.git.uitl.BytesUtil;
 
+import java.nio.ByteOrder;
 import java.util.concurrent.atomic.AtomicInteger;
 
 /**
@@ -57,7 +59,7 @@ public class MsgInboundFilter extends ChannelInboundHandlerAdapter {
                     pileline.addLast(new IotCarProtocolDecoder());
                     pileline.addLast(new IotCarProtocolEncoder());
                     //分包器，防止数据黏包
-//                    pileline.addLast(new DelimiterBasedFrameDecoder());
+                    pileline.addLast(new LengthFieldBasedFrameDecoder(ByteOrder.LITTLE_ENDIAN, 65535, 2, 2, -4, 0, true));
                     pileline.addLast(new IotCarPtInboundDataHandler());
                     break;
                 default:
